@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}ApplyTrack | Application dashboard{% endblock %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">YOUR JOB SEARCH</p><h1>Applications, <em>in view.</em></h1><p class="lede">A calm place to track roles, next steps, and conversations.</p></div><a class="primary-button" href="{{ url_for('new_application') }}">＋ Add application</a></section>
+<section class="stats" aria-label="Application summary">
+  <article><span>Total tracked</span><strong>{{ counts.total }}</strong><small>Across your search</small></article>
+  <article><span>In progress</span><strong>{{ counts.active }}</strong><small>Interested, applied, or interviewing</small></article>
+  <article><span>Interviews</span><strong>{{ counts.interviews }}</strong><small>Active conversations</small></article>
+  <article><span>Offers</span><strong>{{ counts.offers }}</strong><small>Good news</small></article>
+</section>
+<section class="list-panel">
+  <div class="panel-heading"><div><p class="eyebrow">APPLICATION LOG</p><h2>Your opportunities</h2></div><a class="quiet-link" href="{{ url_for('export_csv') }}">Export CSV ↓</a></div>
+  <form class="filters" method="get" action="{{ url_for('index') }}">
+    <label class="search"><span class="sr-only">Search company, role, or location</span><input name="q" value="{{ search }}" placeholder="Search company, role, or location"></label>
+    <label><span class="sr-only">Filter by status</span><select name="status"><option value="">All statuses</option>{% for status in statuses %}<option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label>
+    <button class="filter-button" type="submit">Filter</button>
+    {% if search or status_filter %}<a class="quiet-link" href="{{ url_for('index') }}">Clear</a>{% endif %}
+  </form>
+  {% if applications %}
+  <div class="application-list">
+    {% for item in applications %}
+    <article class="application-row">
+      <div class="company-mark">{{ item.company[:1]|upper }}</div>
+      <div class="role-info"><div class="role-title"><h3>{{ item.role }}</h3><span class="status status-{{ item.status|lower }}">{{ item.status }}</span></div><p>{{ item.company }}{% if item.location %}<span> · </span>{{ item.location }}{% endif %}</p><small>Applied {{ item.applied_on }}</small>{% if item.notes %}<p class="notes">{{ item.notes }}</p>{% endif %}</div>
+      <div class="row-actions">{% if item.posting_url %}<a class="icon-link" href="{{ item.posting_url }}" target="_blank" rel="noopener noreferrer" aria-label="Open job posting">↗</a>{% endif %}<a class="icon-link" href="{{ url_for('edit_application', application_id=item.id) }}" aria-label="Edit {{ item.role }}">Edit</a><form method="post" action="{{ url_for('delete_application', application_id=item.id) }}" onsubmit="return confirm('Remove this application?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="icon-link delete-link" type="submit" aria-label="Delete {{ item.role }}">×</button></form></div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state"><span class="empty-icon">↗</span><h3>{% if search or status_filter %}No matching applications{% else %}Start with one application{% endif %}</h3><p>{% if search or status_filter %}Try changing your search or filter.{% else %}Add a role to keep its status, date, and notes together.{% endif %}</p>{% if not search and not status_filter %}<a class="primary-button" href="{{ url_for('new_application') }}">Add your first application</a>{% endif %}</div>
+  {% endif %}
+</section>
+<p class="privacy-note">Your records stay in a local SQLite file. This app has no account or cloud sync.</p>
+{% endblock %}
