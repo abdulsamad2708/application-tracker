@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} | ApplyTrack{% endblock %}
+{% block content %}
+<section class="form-page"><a class="back-link" href="{{ url_for('index') }}">← Back to applications</a><p class="eyebrow">APPLICATION DETAILS</p><h1>{{ page_title }}</h1><p class="lede">Keep the details you need for your next follow-up.</p>
+  <form class="application-form" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-grid"><label>Company<input name="company" required maxlength="100" value="{{ application.get('company', '') }}" placeholder="e.g. Acadia University"></label><label>Role title<input name="role" required maxlength="100" value="{{ application.get('role', '') }}" placeholder="e.g. Junior Web Developer"></label><label>Status<select name="status">{% for status in statuses %}<option value="{{ status }}" {% if application.get('status') == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label><label>Application date<input type="date" name="applied_on" required value="{{ application.get('applied_on', '') }}"></label><label class="wide">Location<input name="location" maxlength="100" value="{{ application.get('location', '') }}" placeholder="City, province, or Remote"></label><label class="wide">Posting link <span class="optional">(optional)</span><input type="url" name="posting_url" maxlength="500" value="{{ application.get('posting_url', '') }}" placeholder="https://"></label><label class="wide">Notes <span class="optional">(optional)</span><textarea name="notes" rows="4" maxlength="2000" placeholder="Contact name, follow-up date, or interview notes">{{ application.get('notes', '') }}</textarea></label></div>
+    <div class="form-actions"><a class="secondary-button" href="{{ url_for('index') }}">Cancel</a><button class="primary-button" type="submit">Save application</button></div>
+  </form>
+</section>
+{% endblock %}
